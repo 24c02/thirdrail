@@ -7,6 +7,8 @@ file 'app/models/concerns/public_identifiable.rb', <<~RUBY
 
   # (@msw) Stripe-like public IDs that don't require adding a column to the database.
   module PublicIdentifiable
+    SEPARATOR = ?_
+
     extend ActiveSupport::Concern
 
     included do
@@ -14,9 +16,7 @@ file 'app/models/concerns/public_identifiable.rb', <<~RUBY
       class_attribute :public_id_prefix
     end
 
-    def public_id
-      "\#{self.public_id_prefix}!\#{hashid}"
-    end
+    def public_id = "\#{self.public_id_prefix}\#{SEPARATOR}\#{hashid}"
 
     module ClassMethods
       def set_public_id_prefix(prefix)
@@ -26,8 +26,8 @@ file 'app/models/concerns/public_identifiable.rb', <<~RUBY
       def find_by_public_id(id)
         return nil unless id.is_a? String
 
-        prefix = id.split("!").first.to_s.downcase
-        hash = id.split("!").last
+        prefix = id.split(SEPARATOR).first.to_s.downcase
+        hash = id.split(SEPARATOR).last
         return nil unless prefix == self.get_public_id_prefix
 
         find_by_hashid(hash)

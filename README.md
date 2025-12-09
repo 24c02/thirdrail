@@ -37,7 +37,7 @@ then it asks if you want:
 | **hack club auth** | oauth with auth.hackclub.com. oidc by default, or api mode if you need to make server-side calls. |
 | **user model** | `User` with `hca_id`, `email`, `name`, `is_admin`. sets up `current_user`, `signed_in?`, etc. |
 | **airctiverecord** | airtable orm. you know the one. |
-| **public_identifiable** | stripe-like public IDs (`usr!abc123`) without extra columns. uses hashid-rails. |
+| **public_identifiable** | stripe-like public IDs (`usr_abc123`) without extra columns. uses hashid-rails. |
 | **bonus stuff** | starter home/login pages with routes. only shows up if you have a user model. |
 
 ## env vars
