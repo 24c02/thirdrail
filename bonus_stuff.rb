@@ -90,6 +90,9 @@ after_bundle do
           }
         SCSS
       end
+      inside "entrypoints" do
+        append_to_file("application.scss") { '@use "@/styles/admin_tool";' }
+      end
     end
   end
 
