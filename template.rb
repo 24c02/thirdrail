@@ -34,6 +34,8 @@ gsub_file 'app/controllers/application_controller.rb',
           /^\s*# Only allow modern browsers.*\n\s*allow_browser versions: :modern\n?/m,
           ''
 
+@use_public_ids = default_yes?('use public IDs (hashid-rails)?')
+apply_template('public_identifiable') if @use_public_ids
 apply_template('vite', ['run `bin/vite dev` alongside your Rails server']) if default_yes?('use Vite?')
 apply_template('phlex') if default_yes?('use Phlex?')
 

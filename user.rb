@@ -18,6 +18,15 @@ after_bundle do
     # frozen_string_literal: true
 
     class User < ApplicationRecord
+      #{if @use_public_ids
+        <<~PUBLIC_ID.chomp
+          include PublicIdentifiable
+          set_public_id_prefix :usr
+
+        PUBLIC_ID
+      else
+        ''
+      end}
       scope :admins, -> { where(is_admin: true) }
 
       #{if @use_hca
