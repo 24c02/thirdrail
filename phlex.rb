@@ -7,7 +7,7 @@ after_bundle do
 
   inject_into_file "app/components/base.rb", after: "class Components::Base < Phlex::HTML\n" do
     <<~HELPERS
-      register_output_helper :admin_tool
+      register_value_helper :admin_tool
       register_value_helper :current_user
     HELPERS
   end
@@ -23,10 +23,10 @@ after_bundle do
                def view_template
                    admin_tool do
                        details class: "inspector" do
-                           summary record_id
+                           summary { record_id }
                            pre class: "inspector-content" do
                                unless @object.nil?
-                                   raw safe ap @object
+                                   raw safe(ap @object)
                                else
                                    plain "nil"
                                end
@@ -34,10 +34,10 @@ after_bundle do
                        end
                    end
                end
-                 private
+                private
 
                def record_id
-                   "\#{@record.class.name} \#{@record&.try(:public_id) || @record&.id}"
+                   "\#{@object.class.name} \#{@object&.try(:public_id) || @object&.id}"
                end
            end
          INSPECTOR
