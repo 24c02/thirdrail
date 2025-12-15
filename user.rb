@@ -3,6 +3,7 @@
 after_bundle do
   columns = [
     ('hca_id:string:uniq' if @use_hca),
+    ('hca_access_token:string' if @use_hca && @hca_use_api),
     'email:string',
     'name:string',
     'is_admin:boolean'
@@ -13,6 +14,11 @@ after_bundle do
   # Add default value for is_admin
   migration_file = Dir.glob('db/migrate/*_create_users.rb').first
   gsub_file migration_file, 't.boolean :is_admin', 't.boolean :is_admin, default: false, null: false'
+  
+  # Mark hca_access_token column as encrypted
+  if @use_hca && @hca_use_api
+    gsub_file migration_file, 't.string :hca_access_token', 't.text :hca_access_token'
+  end
 
   file 'app/models/user.rb', <<~MODEL, force: true
     # frozen_string_literal: true
@@ -30,21 +36,26 @@ after_bundle do
       scope :admins, -> { where(is_admin: true) }
 
       #{if @use_hca
-        <<~HCA_SECTION.chomp
-          validates :hca_id, presence: true, uniqueness: true
+         <<~HCA_SECTION.chomp
+           validates :hca_id, presence: true, uniqueness: true
+           #{@hca_use_api ? 'encrypts :hca_access_token' : ''}
 
-          def self.find_or_create_from_omniauth(auth)
-            find_or_create_by!(hca_id: auth.uid) do |user|
-              user.email = auth.info.email
-              user.name = auth.info.name
-            end
-          end
+           def self.find_or_create_from_omniauth(auth)
+             hca_id = auth.uid
+             raise "Missing HCA user ID from authentication" if hca_id.blank?
+             
+             find_or_create_by!(hca_id:) do |user|
+               user.email = auth.info.email
+               user.name = auth.info.name
+               #{@hca_use_api ? 'user.hca_access_token = auth.credentials.token' : ''}
+             end
+           end
 
-          #{@hca_use_api ? 'def hca_profile(access_token) = HCAService.new(access_token).me' : ''}
-        HCA_SECTION
-      else
-        ''
-      end}
+           #{@hca_use_api ? 'def hca_profile(access_token) = HCAService.new(access_token).me' : ''}
+         HCA_SECTION
+       else
+         ''
+       end}
     end
   MODEL
 end

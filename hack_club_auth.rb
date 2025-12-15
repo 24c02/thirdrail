@@ -26,27 +26,29 @@ append_to_file '.env.development', <<~ENV
 ENV
 
 if @hca_use_api
-  append_to_file 'config/initializers/inflections.rb', <<~INFLECTIONS
+   append_to_file 'config/initializers/inflections.rb', <<~INFLECTIONS
 
-    ActiveSupport::Inflector.inflections(:en) do |inflect|
-      inflect.acronym "HCA"
-    end
-  INFLECTIONS
+     ActiveSupport::Inflector.inflections(:en) do |inflect|
+       inflect.acronym "HCA"
+     end
+   INFLECTIONS
 
-  initializer 'omniauth.rb', <<~OMNIAUTH
-    Rails.application.config.middleware.use OmniAuth::Builder do
-      provider :oauth2,
-        name: :hackclub,
-        client_id: Rails.application.config.hack_club_auth.client_id,
-        client_secret: Rails.application.config.hack_club_auth.client_secret,
-        client_options: {
-          site: Rails.application.config.hack_club_auth.base_url,
-          authorize_url: "/oauth/authorize",
-          token_url: "/oauth/token"
-        },
-        authorize_params: { scope: "openid profile email verification_status" }
-    end
-  OMNIAUTH
+   initializer 'omniauth.rb', <<~OMNIAUTH
+     Rails.application.config.middleware.use OmniAuth::Builder do
+       provider :oauth2,
+         name: :hackclub,
+         client_id: Rails.application.config.hack_club_auth.client_id,
+         client_secret: Rails.application.config.hack_club_auth.client_secret,
+         client_options: {
+           site: Rails.application.config.hack_club_auth.base_url,
+           authorize_url: "/oauth/authorize",
+           token_url: "/oauth/token"
+         },
+         authorize_params: { scope: "openid profile email verification_status" },
+         user_info_url: "/api/v1/me",
+         uid_field: "id"
+     end
+   OMNIAUTH
 
   file 'app/services/hca_service.rb', <<~SERVICE
     # frozen_string_literal: true
@@ -74,20 +76,22 @@ if @hca_use_api
     end
   SERVICE
 else
-  initializer 'omniauth.rb', <<~OMNIAUTH
-    Rails.application.config.middleware.use OmniAuth::Builder do
-      provider :openid_connect,
-        name: :hackclub,
-        issuer: Rails.application.config.hack_club_auth.base_url,
-        discovery: true,
-        client_options: {
-          identifier: Rails.application.config.hack_club_auth.client_id,
-          secret: Rails.application.config.hack_club_auth.client_secret,
-          redirect_uri: "\#{ENV.fetch('APP_URL', 'http://localhost:3000')}/auth/hackclub/callback"
-        },
-        scope: %i[openid profile email verification_status]
-    end
-  OMNIAUTH
+   initializer 'omniauth.rb', <<~OMNIAUTH
+     Rails.application.config.middleware.use OmniAuth::Builder do
+       provider :openid_connect,
+         name: :hackclub,
+         issuer: Rails.application.config.hack_club_auth.base_url,
+         discovery: true,
+         client_options: {
+           identifier: Rails.application.config.hack_club_auth.client_id,
+           secret: Rails.application.config.hack_club_auth.client_secret,
+           redirect_uri: "\#{ENV.fetch('APP_URL', 'http://localhost:3000')}/auth/hackclub/callback"
+         },
+         scope: %i[openid profile email verification_status],
+         response_type: :id_token,
+         response_mode: :form_post
+     end
+   OMNIAUTH
 end
 
 file 'app/controllers/sessions_controller.rb', <<~CONTROLLER
