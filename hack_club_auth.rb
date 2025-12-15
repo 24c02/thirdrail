@@ -101,11 +101,11 @@ file 'app/controllers/sessions_controller.rb', <<~CONTROLLER
 
     def destroy
       reset_session
-      redirect_to root_path, notice: "Signed out successfully!"
+      redirect_to login_path, notice: "Signed out successfully!"
     end
 
     def failure
-      redirect_to root_path, alert: "Authentication failed: \#{params[:message]}"
+      redirect_to login_path, alert: "Authentication failed: \#{params[:message]}"
     end
   end
 CONTROLLER
