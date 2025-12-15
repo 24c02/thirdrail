@@ -7,7 +7,7 @@
 gem 'omniauth'
 
 if @hca_use_api
-  gem 'omniauth-oauth2'
+  gem 'omniauth-hack_club'
   gem 'faraday'
 else
   gem 'omniauth_openid_connect'
@@ -35,18 +35,11 @@ if @hca_use_api
 
    initializer 'omniauth.rb', <<~OMNIAUTH
      Rails.application.config.middleware.use OmniAuth::Builder do
-       provider :oauth2,
-         name: :hackclub,
-         client_id: Rails.application.config.hack_club_auth.client_id,
-         client_secret: Rails.application.config.hack_club_auth.client_secret,
-         client_options: {
-           site: Rails.application.config.hack_club_auth.base_url,
-           authorize_url: "/oauth/authorize",
-           token_url: "/oauth/token"
-         },
-         authorize_params: { scope: "openid profile email verification_status" },
-         user_info_url: "/api/v1/me",
-         uid_field: "id"
+       provider :hack_club, 
+         Rails.application.config.hack_club_auth.client_id,
+         Rails.application.config.hack_club_auth.client_secret,
+         scope: "openid email name slack_id verification_status",
+         staging: !Rails.env.production?
      end
    OMNIAUTH
 
@@ -79,13 +72,13 @@ else
    initializer 'omniauth.rb', <<~OMNIAUTH
      Rails.application.config.middleware.use OmniAuth::Builder do
        provider :openid_connect,
-         name: :hackclub,
+         name: :hack_club,
          issuer: Rails.application.config.hack_club_auth.base_url,
          discovery: true,
          client_options: {
            identifier: Rails.application.config.hack_club_auth.client_id,
            secret: Rails.application.config.hack_club_auth.client_secret,
-           redirect_uri: "\#{ENV.fetch('APP_URL', 'http://localhost:3000')}/auth/hackclub/callback"
+           redirect_uri: "\#{ENV.fetch('APP_URL', 'http://localhost:3000')}/auth/hack_club/callback"
          },
          scope: %i[openid profile email verification_status],
          response_type: :id_token,
@@ -118,8 +111,8 @@ file 'app/controllers/sessions_controller.rb', <<~CONTROLLER
 CONTROLLER
 
 route <<~ROUTES
-  post "/auth/hackclub", as: :hackclub_auth
-  get "/auth/hackclub/callback", to: "sessions#create"
+  post "/auth/hack_club", as: :hack_club_auth
+  get "/auth/hack_club/callback", to: "sessions#create"
   get "/auth/failure", to: "sessions#failure"
 ROUTES
 
