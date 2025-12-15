@@ -42,6 +42,8 @@ apply_template('phlex') if default_yes?('use Phlex?')
 @use_hca = default_yes?('set up Hack Club Auth?')
 apply_template('hack_club_auth', ['set HACKCLUB_CLIENT_ID and HACKCLUB_CLIENT_SECRET in .env.development']) if @use_hca
 
+apply_template('pundit') if default_yes?('use Pundit for authorization?')
+
 @user_model = default_yes?('generate a User model?')
 apply_template('user', ['run `bin/rails db:migrate`']) if @user_model
 
