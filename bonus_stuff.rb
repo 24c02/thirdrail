@@ -33,7 +33,7 @@ after_bundle do
     <h1>Login</h1>
     #{if @use_hca
       <<~HCA_BUTTON.chomp
-        <%= button_to 'Sign in with Hack Club', '/auth/hackclub', method: :post, class: "hca-button", data: { turbo: false } %>
+        <%= button_to 'Sign in with Hack Club', '/auth/hack_club', method: :post, class: "hca-button", data: { turbo: false } %>
       HCA_BUTTON
     else
       ""
