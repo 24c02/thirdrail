@@ -5,13 +5,14 @@ my opinionated rails template for hack club apps. i got tired of setting up the 
 ## usage
 
 ```bash
-rails new myapp \
+rails new \
     --no-rc \
     --skip-kamal \
     --skip-jbuilder \
     --skip-javascript \
     --skip-hotwire \
-    -m https://raw.githubusercontent.com/24c02/thirdrail/main/template.rb
+    -m https://raw.githubusercontent.com/24c02/thirdrail/main/template.rb \
+    [your app name]
 ```
 
 or swap that URL for a path if you've cloned it locally.
